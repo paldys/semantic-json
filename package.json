@@ -10,6 +10,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
+    "node-sass": "^4.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.1",
@@ -20,7 +21,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "prettier-check": "prettier --check \"**/*.{js,ts,tsx,css}\"",
+    "prettier": "prettier --write \"**/*.{js,ts,tsx,css}\"",
+    "eject": "react-scripts eject",
+    "eslint": "eslint . --ext .js,.ts,.tsx",
+    "stylelint": "stylelint \"**/*.scss\"",
+    "lint": "yarn prettier-check && yarn eslint && yarn stylelint"
   },
   "eslintConfig": {
     "extends": [
@@ -39,5 +45,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.18.0",
+    "eslint-plugin-react": "^7.22.0",
+    "prettier": "^2.2.1",
+    "stylelint": "^13.9.0",
+    "stylelint-config-property-sort-order-smacss": "^7.0.0",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-recommended-scss": "^4.2.0",
+    "stylelint-scss": "^3.18.0"
   }
 }
