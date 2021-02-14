@@ -1,0 +1,19 @@
+@import './constants';
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700');
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700');
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: $bg-color;
+  color: $color;
+  font-family: $font-family-regular;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

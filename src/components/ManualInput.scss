@@ -1,0 +1,32 @@
+@import '../constants';
+
+.ManualInput {
+  .inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: $gap-large 0;
+    column-gap: $gap-large;
+  }
+
+  .action {
+    text-align: center;
+
+    .compare {
+      display: inline-block;
+      margin: auto;
+      padding: $gap-small $gap-medium;
+      border: 1px solid $color;
+      background-color: $bg-color;
+      color: $color;
+      cursor: pointer;
+    }
+  }
+}
+
+.SingleInput {
+  textarea {
+    width: 100%;
+    height: 400px;
+    font-family: $font-family-mono;
+  }
+}

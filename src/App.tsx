@@ -1,26 +1,19 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useState} from 'react'
+import ManualInput from './components/ManualInput'
+import DisplayDifference from './components/DisplayDifference'
+import {compareJsons} from './utils'
+import './App.scss'
 
-function App() {
+const App = (): React.ReactElement => {
+  const [comparator, setComparator] = useState<ReturnType<typeof compareJsons> | undefined>()
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Semantic JSON compare</h1>
+      <ManualInput onCompare={(left, right) => setComparator(compareJsons(left, right))} />
+      {comparator && <DisplayDifference comparator={comparator} />}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -1,0 +1,10 @@
+@import './constants';
+
+.App {
+  margin: $gap-large;
+
+  h1 {
+    margin: $gap-large;
+    text-align: center;
+  }
+}
