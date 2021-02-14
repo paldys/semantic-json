@@ -11,8 +11,8 @@
 
 body {
   margin: 0;
-  background-color: #282c34;
-  color: white;
+  background-color: $bg-color;
+  color: $color;
   font-family: $font-family-regular;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

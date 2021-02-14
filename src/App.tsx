@@ -1,22 +1,17 @@
 import React, {useState} from 'react'
 import ManualInput from './components/ManualInput'
-import {safeJsonParse} from './utils'
+import DisplayDifference from './components/DisplayDifference'
+import {compareJsons} from './utils'
 import './App.scss'
 
-interface Comparator {
-  left?: string
-  right?: string
-}
-
 const App = (): React.ReactElement => {
-  const [{left, right}, setComparator] = useState<Comparator>({})
+  const [comparator, setComparator] = useState<ReturnType<typeof compareJsons> | undefined>()
 
   return (
     <div className="App">
       <h1>Semantic JSON compare</h1>
-      <ManualInput onCompare={(left, right) => setComparator({left, right})} />
-      {left && <pre>{JSON.stringify(safeJsonParse(left), null, 2)}</pre>}
-      {right && <pre>{JSON.stringify(safeJsonParse(right), null, 2)}</pre>}
+      <ManualInput onCompare={(left, right) => setComparator(compareJsons(left, right))} />
+      {comparator && <DisplayDifference comparator={comparator} />}
     </div>
   )
 }

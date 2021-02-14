@@ -7,4 +7,13 @@ $gap-small: 6px;
 $gap-2x-small: 3px;
 
 $bg-color: #282c34;
+$bg-highlight-color: lighten(#282c34, 10%);
 $color: white;
+
+$red-color: #ef476f;
+$green-color: #06d6a0;
+$orange-color: #f4a261;
+$orange-highlight-color: lighten(#f4a261, 10%);
+
+$bg-red-color: darken($red-color, 20%);
+$bg-green-color: darken($green-color, 20%);
