@@ -1,5 +1,6 @@
 {
   "name": "semantic-json",
+  "homepage": "https://paldys.github.io/semantic-json",
   "version": "0.1.0",
   "private": false,
   "dependencies": {
@@ -28,7 +29,8 @@
     "eject": "react-scripts eject",
     "eslint": "eslint . --ext .js,.ts,.tsx",
     "stylelint": "stylelint \"**/*.scss\"",
-    "lint": "yarn prettier-check && yarn eslint && yarn stylelint"
+    "lint": "yarn prettier-check && yarn eslint && yarn stylelint",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -54,6 +56,7 @@
     "@typescript-eslint/parser": "^4.14.1",
     "eslint": "^7.18.0",
     "eslint-plugin-react": "^7.22.0",
+    "gh-pages": "^3.1.0",
     "prettier": "^2.2.1",
     "stylelint": "^13.9.0",
     "stylelint-config-property-sort-order-smacss": "^7.0.0",
