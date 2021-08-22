@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import _ from 'lodash'
 import clsx from 'clsx'
-import {compareJsons, FailedCompare, JsonCompareResult, SimpleValue} from '../utils'
+import {compareJsons, FailedCompare, JsonCompared, SimpleDiffedValue} from '../utils'
 import './DisplayDifference.scss'
 
 const ENCLOSING_TAGS: Record<'simple' | 'array' | 'object', [string, string]> = {
@@ -45,9 +45,9 @@ const DisplayValue = ({
   indentation = '',
   prefix,
   suffix,
-  value: {type, value},
-}: {value: SimpleValue} & PrefixValue): React.ReactElement => (
-  <div className={clsx('DisplayValue', type)}>
+  value: {diffType, value},
+}: {value: SimpleDiffedValue} & PrefixValue): React.ReactElement => (
+  <div className={clsx('DisplayValue', diffType)}>
     <pre>
       {indentation}
       {prefix ? `${JSON.stringify(prefix)}: ` : ''}
@@ -58,12 +58,12 @@ const DisplayValue = ({
 )
 
 interface DisplayResultPrefs extends PrefixValue {
-  result: JsonCompareResult
+  result: JsonCompared
   collapse?: boolean
 }
 
 const DisplayResult = ({
-  result: {type, isSame, values},
+  result: {comparedType, isSame, values},
   collapse = false,
   indentation = '',
   prefix,
@@ -71,8 +71,8 @@ const DisplayResult = ({
 }: DisplayResultPrefs): React.ReactElement => {
   const [collapsed, setCollapsed] = useState(collapse)
   const fullPrefix = `${indentation}${prefix != null ? `${JSON.stringify(prefix)}: ` : ''}`
-  const nextIndentation = type === 'simple' ? indentation : addIndentation(indentation)
-  const [startTag, endTag] = ENCLOSING_TAGS[type]
+  const nextIndentation = comparedType === 'simple' ? indentation : addIndentation(indentation)
+  const [startTag, endTag] = ENCLOSING_TAGS[comparedType]
 
   if (values.length === 0)
     return (
@@ -108,7 +108,7 @@ const DisplayResult = ({
       {values.map((e, i) => {
         const nextPrefix = e.key
         const nextSuffix = i < values.length - 1 ? ',' : ''
-        return e.type === 'complex' ? (
+        return e.diffType === 'complex' ? (
           <DisplayResult
             key={i}
             indentation={nextIndentation}
