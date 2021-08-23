@@ -22,58 +22,70 @@ const safeJsonParse = (s: string): SuccessfulSafeJsonParse | FailedSafeJsonParse
   }
 }
 
-interface LeftValue {
-  diffType: 'left'
-  key?: string
-  value: unknown
+export interface KeyedValue {
+  key: string
 }
 
-interface BothValue {
-  diffType: 'both'
+export interface BothValue {
+  comparedType: 'both'
   key?: string
-  value: null | string | number | boolean | JsonComparedArray | JsonComparedObject
+  typedValue: JsonTypedValue
 }
 
-interface RightValue {
-  diffType: 'right'
+export interface LeftValue {
+  comparedType: 'left'
   key?: string
-  value: unknown
+  typedValue: JsonTypedValue
 }
 
-interface ComplexValue {
-  diffType: 'complex'
+export interface RightValue {
+  comparedType: 'right'
   key?: string
-  value: JsonComparedArray | JsonComparedObject
+  typedValue: JsonTypedValue
 }
 
-export type SimpleDiffedValue = LeftValue | RightValue | BothValue
-export type JsonDiffedValue = LeftValue | RightValue | BothValue | ComplexValue
+export type ComparedValue = BothValue | LeftValue | RightValue
 
-interface JsonComparedValue {
-  comparedType: 'simple' | 'array' | 'object'
+export const createBothValue = (typedValue: JsonTypedValue): BothValue => ({
+  comparedType: 'both',
+  typedValue,
+})
+
+export const addKey = <T extends ComparedValue>(converter: (_: JsonTypedValue) => T) => ([
+  key,
+  typedValue,
+]: [string, JsonTypedValue]): T & KeyedValue => ({...converter(typedValue), key})
+
+export const createLeftValue = (typedValue: JsonTypedValue): LeftValue => ({
+  comparedType: 'left',
+  typedValue,
+})
+
+export const createRightValue = (typedValue: JsonTypedValue): RightValue => ({
+  comparedType: 'right',
+  typedValue,
+})
+
+interface ComparedValues {
   isSame: boolean
-  values: Array<JsonDiffedValue>
+  comparedValues: ComparedValue[]
 }
 
-interface JsonComparedSimple extends JsonComparedValue {
-  comparedType: 'simple'
+interface ComparedKeyedValues {
+  isSame: boolean
+  comparedValues: (ComparedValue & KeyedValue)[]
 }
 
-interface JsonComparedArray extends JsonComparedValue {
-  comparedType: 'array'
+interface ComparedJson {
+  isSame: boolean
+  comparedValues: [BothValue] | [LeftValue, RightValue]
 }
-
-interface JsonComparedObject extends JsonComparedValue {
-  comparedType: 'object'
-}
-
-export type JsonCompared = JsonComparedSimple | JsonComparedArray | JsonComparedObject
 
 export interface SuccessfulCompare {
   status: 'ok'
   leftJson: ReturnType<JSON['parse']>
   rightJson: ReturnType<JSON['parse']>
-  result: JsonCompared
+  result: ComparedJson
 }
 
 export interface FailedCompare {
@@ -84,259 +96,283 @@ export interface FailedCompare {
   rightMessage?: string
 }
 
-export type Compare = SuccessfulCompare | FailedCompare
+export type CompareResult = SuccessfulCompare | FailedCompare
 
 const tupleArray = (...v: string[]): string[] => v
 
 const JSON_VALUE_PRIMITIVE_TYPES = ['number', 'string', 'boolean', 'null'] as const
 const JSON_VALUE_PRIMITIVE_TYPES_INFERED = tupleArray(...JSON_VALUE_PRIMITIVE_TYPES)
-// const JSON_VALUE_TYPES = ['array', 'object', ...JSON_VALUE_PRIMITIVE_TYPES] as const
 
-interface JsonTypedValueNull {
+export interface JsonTypedNullValue {
   type: 'null'
   value: null
 }
 
-interface JsonTypedValueString {
-  type: 'string'
-  value: string
-}
-
-interface JsonTypedValueNumber {
+export interface JsonTypedNumberValue {
   type: 'number'
   value: number
 }
 
-interface JsonTypedValueBoolean {
+export interface JsonTypedStringValue {
+  type: 'string'
+  value: string
+}
+
+export interface JsonTypedBooleanValue {
   type: 'boolean'
   value: boolean
 }
 
-interface JsonTypedValueArray {
+export interface JsonTypedArrayValue {
   type: 'array'
+  value: ComparedValues
+}
+
+export interface JsonTypedObjectValue {
+  type: 'object'
+  value: ComparedKeyedValues
+}
+
+interface JsonTypedRawArrayValue {
+  type: 'raw-array'
   value: unknown[]
 }
 
-interface JsonTypedValueObject {
-  type: 'object'
+interface JsonTypedRawObjectValue {
+  type: 'raw-object'
   value: Record<string, unknown>
 }
 
-type JsonTypedValue =
-  | JsonTypedValueNull
-  | JsonTypedValueString
-  | JsonTypedValueNumber
-  | JsonTypedValueBoolean
-  | JsonTypedValueArray
-  | JsonTypedValueObject
+export interface JsonTypedLazyValue {
+  type: 'lazy'
+  value: JsonTypedRawArrayValue | JsonTypedRawObjectValue
+}
 
-const addType = (value: unknown): JsonTypedValue => {
+export type JsonTypedValue =
+  | JsonTypedNullValue
+  | JsonTypedNumberValue
+  | JsonTypedStringValue
+  | JsonTypedBooleanValue
+  | JsonTypedArrayValue
+  | JsonTypedObjectValue
+  | JsonTypedLazyValue
+
+export type JsonTypedRawValue =
+  | JsonTypedNullValue
+  | JsonTypedNumberValue
+  | JsonTypedStringValue
+  | JsonTypedBooleanValue
+  | JsonTypedRawArrayValue
+  | JsonTypedRawObjectValue
+
+const addRawType = (value: unknown): JsonTypedRawValue => {
   if (value === null) return {type: 'null', value: null}
   if (typeof value === 'number') return {type: 'number', value}
   if (typeof value === 'string') return {type: 'string', value}
   if (typeof value === 'boolean') return {type: 'boolean', value}
-  if (_.isArray(value)) return {type: 'array', value}
-  if (_.isPlainObject(value)) return {type: 'object', value: value as Record<string, unknown>}
+  if (_.isArray(value)) return {type: 'raw-array', value}
+  if (_.isPlainObject(value)) return {type: 'raw-object', value: value as Record<string, unknown>}
   throw Error('Unexpected type...')
 }
 
 const isPrimitiveType = (
-  v: JsonTypedValue,
-): v is JsonTypedValueNull | JsonTypedValueString | JsonTypedValueNumber | JsonTypedValueBoolean =>
+  v: JsonTypedRawValue,
+): v is JsonTypedNullValue | JsonTypedNumberValue | JsonTypedStringValue | JsonTypedBooleanValue =>
   JSON_VALUE_PRIMITIVE_TYPES_INFERED.includes(v.type)
 
-const toLeftRightValues = (
-  a: unknown[],
-  diffType: 'left' | 'right',
-): Array<LeftValue | RightValue> => a.map((value) => ({diffType, value}))
+const arrayToComparedValues = <T extends ComparedValue>(
+  array: unknown[],
+  converter: (_: JsonTypedValue) => T,
+): T[] => array.map(addRawType).map(convertToTypedValue).map(converter)
+
+const arrayToComparedKeyValues = <T extends ComparedValue>(
+  array: Array<[string, unknown]>,
+  converter: (_: JsonTypedValue) => T,
+): (T & KeyedValue)[] =>
+  array
+    .map(([k, v]): [string, JsonTypedRawValue] => [k, addRawType(v)])
+    .map(([k, v]): [string, JsonTypedValue] => [k, convertToTypedValue(v)])
+    .map(addKey(converter))
+
+const getCompareArraysNextRightArray = (
+  rightArray: unknown[],
+  comparedType: BothValue['comparedType'] | LeftValue['comparedType'],
+): unknown[] => {
+  switch (comparedType) {
+    case 'both':
+      return rightArray.slice(1)
+    case 'left':
+      return rightArray
+  }
+}
 
 const compareArrays = (
   leftArray: unknown[],
   rightArray: unknown[],
   isSame = true,
-  values: JsonComparedArray['values'] = [],
-): JsonComparedArray => {
+  values: ComparedValue[] = [],
+): JsonTypedArrayValue => {
   if (leftArray.length === 0) {
     return {
-      comparedType: 'array',
-      isSame: isSame && rightArray.length === 0,
-      values: [...values, ...toLeftRightValues(rightArray, 'right')],
+      type: 'array',
+      value: {
+        isSame: isSame && rightArray.length === 0,
+        comparedValues: [...values, ...arrayToComparedValues(rightArray, createRightValue)],
+      },
     }
   }
 
   if (rightArray.length === 0) {
     return {
-      comparedType: 'array',
-      isSame: false,
-      values: [...values, ...toLeftRightValues(leftArray, 'left')],
+      type: 'array',
+      value: {
+        isSame: false,
+        comparedValues: [...values, ...arrayToComparedValues(leftArray, createLeftValue)],
+      },
     }
   }
 
-  const leftTypedValue = addType(leftArray[0])
-  const rightTypedValue = addType(rightArray[0])
+  const leftTypedValue = addRawType(leftArray[0])
+  const rightTypedValue = addRawType(rightArray[0])
 
   const c = compareValues(leftTypedValue, rightTypedValue)
 
-  switch (c.comparedType) {
-    case 'array':
-    case 'object':
-      return compareArrays(leftArray.slice(1), rightArray.slice(1), isSame && c.isSame, [
-        ...values,
-        {diffType: 'complex', value: c},
-      ])
-    case 'simple':
-      return c.isSame
-        ? compareArrays(leftArray.slice(1), rightArray.slice(1), isSame, [...values, ...c.values])
-        : compareArrays(leftArray.slice(1), rightArray, false, [...values, c.values[0]])
-  }
-}
+  const [firstComparedValue] = c.comparedValues
 
-const toLeftRightKeyValues = (
-  a: Array<[string, unknown]>,
-  diffType: 'left' | 'right',
-): Array<LeftValue | RightValue> => a.map(([key, value]) => ({diffType, key, value}))
+  const nextRightArray = getCompareArraysNextRightArray(rightArray, firstComparedValue.comparedType)
+
+  return compareArrays(leftArray.slice(1), nextRightArray, isSame && c.isSame, [
+    ...values,
+    firstComparedValue,
+  ])
+}
 
 const compareKeyedArrays = (
   leftKeyedArray: Array<[string, unknown]>,
   rightKeyedArray: Array<[string, unknown]>,
   isSame = true,
-  values: JsonComparedObject['values'] = [],
-): JsonComparedObject => {
+  values: (ComparedValue & KeyedValue)[] = [],
+): JsonTypedObjectValue => {
   if (leftKeyedArray.length === 0) {
     return {
-      comparedType: 'object',
-      isSame: isSame && rightKeyedArray.length === 0,
-      values: [...values, ...toLeftRightKeyValues(rightKeyedArray, 'right')],
+      type: 'object',
+      value: {
+        isSame: isSame && rightKeyedArray.length === 0,
+        comparedValues: [...values, ...arrayToComparedKeyValues(rightKeyedArray, createRightValue)],
+      },
     }
   }
 
   if (rightKeyedArray.length === 0) {
     return {
-      comparedType: 'object',
-      isSame: false,
-      values: [...values, ...toLeftRightKeyValues(leftKeyedArray, 'left')],
+      type: 'object',
+      value: {
+        isSame: false,
+        comparedValues: [...values, ...arrayToComparedKeyValues(leftKeyedArray, createLeftValue)],
+      },
     }
   }
 
   const [leftKey, leftValue] = leftKeyedArray[0]
   const [rightKey, rightValue] = rightKeyedArray[0]
 
+  const leftTypedValue = addRawType(leftValue)
+  const rightTypedValue = addRawType(rightValue)
+
   if (leftKey !== rightKey) {
-    const [nextLeftKeyedArray, nextRightKeyArray, thisValue]: [
+    const [nextLeftKeyedArray, nextRightKeyedArray, thisValue]: [
       Array<[string, unknown]>,
       Array<[string, unknown]>,
-      LeftValue | RightValue,
+      ComparedValue & KeyedValue,
     ] =
       leftKey < rightKey
         ? [
             leftKeyedArray.slice(1),
             rightKeyedArray,
-            {diffType: 'left', key: leftKey, value: leftValue},
+            addKey(createLeftValue)([leftKey, convertToTypedValue(leftTypedValue)]),
           ]
         : [
             leftKeyedArray,
             rightKeyedArray.slice(1),
-            {diffType: 'right', key: rightKey, value: rightValue},
+            addKey(createRightValue)([rightKey, convertToTypedValue(rightTypedValue)]),
           ]
-    return compareKeyedArrays(nextLeftKeyedArray, nextRightKeyArray, false, [...values, thisValue])
+    return compareKeyedArrays(nextLeftKeyedArray, nextRightKeyedArray, false, [
+      ...values,
+      thisValue,
+    ])
   }
-
-  const leftTypedValue = addType(leftValue)
-  const rightTypedValue = addType(rightValue)
 
   const c = compareValues(leftTypedValue, rightTypedValue)
 
-  switch (c.comparedType) {
-    case 'array':
-    case 'object':
-      return compareKeyedArrays(
-        leftKeyedArray.slice(1),
-        rightKeyedArray.slice(1),
-        isSame && c.isSame,
-        [...values, {diffType: 'complex', key: leftKey, value: c}],
-      )
-    case 'simple':
-      return compareKeyedArrays(
-        leftKeyedArray.slice(1),
-        rightKeyedArray.slice(1),
-        isSame && c.isSame,
-        [...values, ...c.values.map((v) => ({key: leftKey, ...v}))],
-      )
-  }
+  return compareKeyedArrays(leftKeyedArray.slice(1), rightKeyedArray.slice(1), isSame && c.isSame, [
+    ...values,
+    ...c.comparedValues.map((cv) => ({...cv, key: leftKey})),
+  ])
 }
 
 const compareObjects = (
   leftObject: Record<string, unknown>,
   rightObject: Record<string, unknown>,
-): JsonComparedObject => {
+): JsonTypedObjectValue => {
   const leftKeyArray = _.sortBy(_.toPairs(leftObject), ([k, _]) => k)
   const rightKeyArray = _.sortBy(_.toPairs(rightObject), ([k, _]) => k)
 
   return compareKeyedArrays(leftKeyArray, rightKeyArray)
 }
 
+const convertToTypedValue = (rawTypedValue: JsonTypedRawValue): JsonTypedValue =>
+  isPrimitiveType(rawTypedValue) ? rawTypedValue : {type: 'lazy', value: rawTypedValue}
+
 const compareValues = (
-  typedLeftJson: JsonTypedValue,
-  typedRightJson: JsonTypedValue,
+  rawTypedLeftJson: JsonTypedRawValue,
+  rawTypedRightJson: JsonTypedRawValue,
   _path: Array<string | number> = [],
-): JsonCompared => {
-  if (typedLeftJson.type === typedRightJson.type) {
-    if (isPrimitiveType(typedLeftJson)) {
-      if (typedLeftJson.value === typedRightJson.value) {
+): ComparedJson => {
+  if (rawTypedLeftJson.type === rawTypedRightJson.type) {
+    if (isPrimitiveType(rawTypedLeftJson)) {
+      if (rawTypedLeftJson.value === rawTypedRightJson.value) {
         return {
-          comparedType: 'simple',
           isSame: true,
-          values: [
-            {
-              diffType: 'both',
-              value: typedLeftJson.value,
-            },
-          ],
+          comparedValues: [createBothValue(rawTypedLeftJson)],
         }
       } else {
         return {
-          comparedType: 'simple',
           isSame: false,
-          values: [
-            {
-              diffType: 'left',
-              value: typedLeftJson.value,
-            },
-            {
-              diffType: 'right',
-              value: typedRightJson.value,
-            },
+          comparedValues: [
+            createLeftValue(rawTypedLeftJson),
+            createRightValue(convertToTypedValue(rawTypedRightJson)),
           ],
         }
       }
     }
 
-    if (typedLeftJson.type === 'array' && typedRightJson.type === 'array') {
-      return compareArrays(typedLeftJson.value, typedRightJson.value)
+    if (rawTypedLeftJson.type === 'raw-array' && rawTypedRightJson.type === 'raw-array') {
+      const typedArray = compareArrays(rawTypedLeftJson.value, rawTypedRightJson.value)
+      return {
+        isSame: typedArray.value.isSame,
+        comparedValues: [createBothValue(typedArray)],
+      }
     }
 
-    if (typedLeftJson.type === 'object' && typedRightJson.type === 'object') {
-      return compareObjects(typedLeftJson.value, typedRightJson.value)
+    if (rawTypedLeftJson.type === 'raw-object' && rawTypedRightJson.type === 'raw-object') {
+      const typedObject = compareObjects(rawTypedLeftJson.value, rawTypedRightJson.value)
+      return {
+        isSame: typedObject.value.isSame,
+        comparedValues: [createBothValue(typedObject)],
+      }
     }
   }
 
   return {
-    comparedType: 'simple',
     isSame: false,
-    values: [
-      {
-        diffType: 'left',
-        value: typedLeftJson.value,
-      },
-      {
-        diffType: 'right',
-        value: typedRightJson.value,
-      },
+    comparedValues: [
+      createLeftValue(convertToTypedValue(rawTypedLeftJson)),
+      createRightValue(convertToTypedValue(rawTypedRightJson)),
     ],
   }
 }
 
-export const compareJsons = (left: string, right: string): Compare => {
+export const compareJsons = (left: string, right: string): CompareResult => {
   const leftParsed = safeJsonParse(left)
   const rightParsed = safeJsonParse(right)
 
@@ -357,6 +393,29 @@ export const compareJsons = (left: string, right: string): Compare => {
     status: 'ok',
     leftJson,
     rightJson,
-    result: compareValues(addType(leftJson), addType(rightJson)),
+    result: compareValues(addRawType(leftJson), addRawType(rightJson)),
+  }
+}
+
+export const expandLazyValue = (
+  typedRawValue: JsonTypedRawArrayValue | JsonTypedRawObjectValue,
+): JsonTypedArrayValue | JsonTypedObjectValue => {
+  switch (typedRawValue.type) {
+    case 'raw-array':
+      return {
+        type: 'array',
+        value: {
+          isSame: true,
+          comparedValues: arrayToComparedValues(typedRawValue.value, createBothValue),
+        },
+      }
+    case 'raw-object':
+      return {
+        type: 'object',
+        value: {
+          isSame: true,
+          comparedValues: arrayToComparedKeyValues(_.toPairs(typedRawValue.value), createBothValue),
+        },
+      }
   }
 }
