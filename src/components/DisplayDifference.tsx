@@ -1,11 +1,23 @@
 import React, {useState} from 'react'
 import _ from 'lodash'
 import clsx from 'clsx'
-import {compareJsons, FailedCompare, JsonCompared, SimpleDiffedValue} from '../utils'
+import {
+  FailedCompare,
+  compareJsons,
+  ComparedValue,
+  JsonTypedValue,
+  JsonTypedArrayValue,
+  JsonTypedObjectValue,
+  JsonTypedStringValue,
+  JsonTypedNullValue,
+  JsonTypedBooleanValue,
+  JsonTypedNumberValue,
+  JsonTypedLazyValue,
+  expandLazyValue,
+} from '../utils'
 import './DisplayDifference.scss'
 
-const ENCLOSING_TAGS: Record<'simple' | 'array' | 'object', [string, string]> = {
-  simple: ['', ''],
+const ENCLOSING_TAGS: Record<'array' | 'object', [string, string]> = {
   array: ['[', ']'],
   object: ['{', '}'],
 }
@@ -15,10 +27,31 @@ const INDENTATION_IN_SPACES = _.range(INDENTATION_SIZE)
   .map(() => ' ')
   .join('')
 
-const addIndentation = (s = ''): string => `${INDENTATION_IN_SPACES}${s}`
+const increaseIndentation = (s = ''): string => `${INDENTATION_IN_SPACES}${s}`
+
+const isComplexType = (v: JsonTypedValue): v is JsonTypedArrayValue | JsonTypedObjectValue =>
+  v.type === 'array' || v.type === 'object'
+interface DisplayValuePrefs<T> extends SharedPrefs {
+  typedValue: T
+}
 
 interface DisplayDifferencePrefs {
   comparator: ReturnType<typeof compareJsons>
+}
+
+interface SharedPrefs {
+  indentation?: string
+  prefix?: string
+  suffix?: string
+  collapse?: boolean
+}
+
+interface DisplayComparedValuePrefs extends SharedPrefs {
+  comparedValue: ComparedValue
+}
+
+interface DisplayComparedValuesPrefs extends SharedPrefs {
+  comparedValues: ComparedValue[]
 }
 
 const DisplayError = ({
@@ -32,114 +65,141 @@ const DisplayError = ({
   </div>
 )
 
-interface PrefixValue {
-  indentation?: string
-  prefix?: string
-  suffix?: string
-}
-
-const stringifyWithIndentation = (v: unknown, indentation = ''): string =>
-  JSON.stringify(v, null, INDENTATION_SIZE).replaceAll('\n', `\n${indentation}`)
-
-const DisplayValue = ({
-  indentation = '',
+const DisplaySimpleValue = ({
+  typedValue: {value},
+  indentation,
   prefix,
   suffix,
-  value: {diffType, value},
-}: {value: SimpleDiffedValue} & PrefixValue): React.ReactElement => (
-  <div className={clsx('DisplayValue', diffType)}>
-    <pre>
-      {indentation}
-      {prefix ? `${JSON.stringify(prefix)}: ` : ''}
-      {stringifyWithIndentation(value, indentation)}
-      {suffix}
-    </pre>
-  </div>
+}: DisplayValuePrefs<
+  JsonTypedNullValue | JsonTypedBooleanValue | JsonTypedNumberValue | JsonTypedStringValue
+>): React.ReactElement => (
+  <pre>
+    {indentation}
+    {prefix ? `${JSON.stringify(prefix)}: ` : ''}
+    {JSON.stringify(value)}
+    {suffix}
+  </pre>
 )
 
-interface DisplayResultPrefs extends PrefixValue {
-  result: JsonCompared
-  collapse?: boolean
-}
-
-const DisplayResult = ({
-  result: {comparedType, isSame, values},
-  collapse = false,
-  indentation = '',
+const DisplayComplexValue = ({
+  typedValue: {
+    type,
+    value: {isSame, comparedValues},
+  },
+  collapse = true,
+  indentation,
   prefix,
   suffix,
-}: DisplayResultPrefs): React.ReactElement => {
-  const [collapsed, setCollapsed] = useState(collapse)
-  const fullPrefix = `${indentation}${prefix != null ? `${JSON.stringify(prefix)}: ` : ''}`
-  const nextIndentation = comparedType === 'simple' ? indentation : addIndentation(indentation)
-  const [startTag, endTag] = ENCLOSING_TAGS[comparedType]
+}: DisplayValuePrefs<JsonTypedArrayValue | JsonTypedObjectValue>): React.ReactElement => {
+  const [isCollapsed, setCollapsed] = useState(collapse)
+  const [startTag, endTag] = ENCLOSING_TAGS[type]
+  const prefixToUse = prefix ? `${JSON.stringify(prefix)}: ` : ''
 
-  if (values.length === 0)
+  if (comparedValues.length === 0) {
     return (
-      <div className="DisplayResult">
+      <pre>
+        {indentation}
+        {prefixToUse}
+        {startTag}
+        {endTag}
+      </pre>
+    )
+  }
+
+  if (isCollapsed) {
+    return (
+      <div className={clsx('collapsable', {mixed: !isSame})} onClick={() => setCollapsed(false)}>
         <pre>
-          {fullPrefix}
+          {indentation}
+          {prefixToUse}
           {startTag}
+          ..
           {endTag}
-          {suffix}
         </pre>
       </div>
     )
-  if (collapsed)
-    return (
-      <div
-        className={clsx('DisplayResult', 'collapsed', {differ: !isSame})}
-        onClick={() => setCollapsed(false)}
-      >
-        <pre>
-          {fullPrefix}
-          {startTag}...{endTag}
-          {suffix}
-        </pre>
-      </div>
-    )
+  }
 
   return (
-    <div className="DisplayResult">
-      <pre>
-        {fullPrefix}
-        {startTag}
-      </pre>
-      {values.map((e, i) => {
-        const nextPrefix = e.key
-        const nextSuffix = i < values.length - 1 ? ',' : ''
-        return e.diffType === 'complex' ? (
-          <DisplayResult
-            key={i}
-            indentation={nextIndentation}
-            prefix={nextPrefix}
-            result={e.value}
-            suffix={nextSuffix}
-            collapse
-          />
-        ) : (
-          <DisplayValue
-            key={i}
-            indentation={nextIndentation}
-            prefix={nextPrefix}
-            value={e}
-            suffix={nextSuffix}
-          />
-        )
-      })}
+    <>
+      <div className="collapsable" onClick={() => setCollapsed(true)}>
+        <pre>
+          {indentation}
+          {prefixToUse}
+          {startTag}
+        </pre>
+      </div>
+      <DisplayComparedValues
+        comparedValues={comparedValues}
+        indentation={increaseIndentation(indentation)}
+      />
       <pre>
         {indentation}
         {endTag}
         {suffix}
       </pre>
+    </>
+  )
+}
+
+const DisplayLazyValue = ({
+  typedValue: {value},
+  ...rest
+}: DisplayValuePrefs<JsonTypedLazyValue>): React.ReactElement => {
+  return <DisplayComplexValue typedValue={expandLazyValue(value)} {...rest} />
+}
+
+const DisplayComparedValue = ({
+  comparedValue: {comparedType, typedValue},
+  ...rest
+}: DisplayComparedValuePrefs): React.ReactElement => {
+  const getDisplayTypedValue = (typedValue: JsonTypedValue): React.ReactElement => {
+    if (isComplexType(typedValue)) {
+      return <DisplayComplexValue typedValue={typedValue} {...rest} />
+    } else if (typedValue.type === 'lazy') {
+      return <DisplayLazyValue typedValue={typedValue} {...rest} />
+    } else {
+      return <DisplaySimpleValue typedValue={typedValue} {...rest} />
+    }
+  }
+
+  return (
+    <div className={clsx('ComparedValue', comparedType)}>{getDisplayTypedValue(typedValue)}</div>
+  )
+}
+
+const DisplayComparedValues = ({
+  comparedValues,
+  indentation,
+  collapse = true,
+}: DisplayComparedValuesPrefs): React.ReactElement => {
+  return (
+    <div className="ComparedValues">
+      {comparedValues.map((cv, i) => {
+        const key = i // todo, we need to use something better
+        const nextPrefix = cv.key
+        const nextSuffix = i < comparedValues.length - 1 ? ',' : ''
+        return (
+          <DisplayComparedValue
+            key={key}
+            comparedValue={cv}
+            prefix={nextPrefix}
+            suffix={nextSuffix}
+            indentation={indentation}
+            collapse={collapse}
+          />
+        )
+      })}
     </div>
   )
 }
 
 const DisplayDifference = ({comparator}: DisplayDifferencePrefs): React.ReactElement => {
   if (comparator.status === 'error') return <DisplayError failedCompare={comparator} />
-  const {result} = comparator
-  return <DisplayResult result={result} />
+  const {
+    result: {comparedValues},
+  } = comparator
+  return <DisplayComparedValues comparedValues={comparedValues} collapse={false} />
 }
 
 export default DisplayDifference

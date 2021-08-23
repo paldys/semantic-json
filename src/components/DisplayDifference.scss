@@ -8,7 +8,7 @@
   }
 }
 
-.DisplayValue {
+.ComparedValue {
   &.left {
     background-color: $bg-red-color;
   }
@@ -16,29 +16,27 @@
   &.right {
     background-color: $bg-green-color;
   }
+
+  .mixed {
+    background-color: $orange-color;
+  }
+
+  .collapsable {
+    cursor: pointer;
+
+    &:hover {
+      background-color: $bg-highlight-color;
+    }
+
+    &.mixed:hover {
+      background-color: $orange-highlight-color;
+    }
+  }
 }
 
-.DisplayResult {
+.ComparedValues {
   pre {
     margin: 0;
     padding: $gap-2x-small;
-  }
-  
-  &.collapsed {
-    pre {
-      cursor: pointer;
-    
-      &:hover {
-        background-color: $bg-highlight-color;
-      }
-    }
-
-    &.differ > pre {
-      background-color: $orange-color;
-      
-      &:hover {
-        background-color: $orange-highlight-color;
-      }
-    }
   }
 }
