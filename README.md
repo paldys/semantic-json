@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# Semantic JSON diff tool
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a basic [Semantic JSON](https://paldys.github.io/semantic-json/) difference visualizer tool. It works fully in your browser, so no data leaves your computer.
 
 ## Available Scripts
 
@@ -8,39 +8,42 @@ In the project directory, you can run:
 
 ### `yarn start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+To run it locally...
 
 ### `yarn build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+To build it...
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `yarn test`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+To test it...
 
-### `yarn eject`
+### `yarn prettier-check`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+To check if the files are _pretty_...
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### `yarn prettier`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+To make the files _pretty_...
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### `yarn eslint`
 
-## Learn More
+To check if the code looks _good_...
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### `yarn stylelint`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+To check if the styling looks _good_...
+
+### `yarn lint`
+
+To check if everything looks _pretty and good_...
+
+### `yarn gh-build`
+
+To publish the `build` folder to GitHub pages...
+
+_Note: There is no `build` folder if `yarn build` is not run_
+
+### `yarn deploy`
+
+To build it and publish it to GitHub pages...
