@@ -51,10 +51,9 @@ export const createBothValue = (typedValue: JsonTypedValue): BothValue => ({
   typedValue,
 })
 
-export const addKey = <T extends ComparedValue>(converter: (_: JsonTypedValue) => T) => ([
-  key,
-  typedValue,
-]: [string, JsonTypedValue]): T & KeyedValue => ({...converter(typedValue), key})
+export const addKey =
+  <T extends ComparedValue>(converter: (_: JsonTypedValue) => T) =>
+  ([key, typedValue]: [string, JsonTypedValue]): T & KeyedValue => ({...converter(typedValue), key})
 
 export const createLeftValue = (typedValue: JsonTypedValue): LeftValue => ({
   comparedType: 'left',
@@ -304,10 +303,12 @@ const compareKeyedArrays = (
   const compareResult = compareValues(leftTypedValue, rightTypedValue)
   const comparedValues: ComparedValue[] = compareResult.comparedValues
 
-  return compareKeyedArrays(leftKeyedArray.slice(1), rightKeyedArray.slice(1), isSame && compareResult.isSame, [
-    ...values,
-    ...comparedValues.map((cv): ComparedValue & KeyedValue => ({...cv, key: leftKey})),
-  ])
+  return compareKeyedArrays(
+    leftKeyedArray.slice(1),
+    rightKeyedArray.slice(1),
+    isSame && compareResult.isSame,
+    [...values, ...comparedValues.map((cv): ComparedValue & KeyedValue => ({...cv, key: leftKey}))],
+  )
 }
 
 const compareObjects = (
