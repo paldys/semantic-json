@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/semantic-json/static/css/main.39304f78.chunk.css",
-    "main.js": "/semantic-json/static/js/main.36b5e308.chunk.js",
-    "main.js.map": "/semantic-json/static/js/main.36b5e308.chunk.js.map",
+    "main.css": "/semantic-json/static/css/main.1efddfdb.chunk.css",
+    "main.js": "/semantic-json/static/js/main.adf36a44.chunk.js",
+    "main.js.map": "/semantic-json/static/js/main.adf36a44.chunk.js.map",
     "runtime-main.js": "/semantic-json/static/js/runtime-main.5a2575de.js",
     "runtime-main.js.map": "/semantic-json/static/js/runtime-main.5a2575de.js.map",
     "static/js/2.78ff1e89.chunk.js": "/semantic-json/static/js/2.78ff1e89.chunk.js",
@@ -10,13 +10,13 @@
     "static/js/3.7b4f50ac.chunk.js": "/semantic-json/static/js/3.7b4f50ac.chunk.js",
     "static/js/3.7b4f50ac.chunk.js.map": "/semantic-json/static/js/3.7b4f50ac.chunk.js.map",
     "index.html": "/semantic-json/index.html",
-    "static/css/main.39304f78.chunk.css.map": "/semantic-json/static/css/main.39304f78.chunk.css.map",
+    "static/css/main.1efddfdb.chunk.css.map": "/semantic-json/static/css/main.1efddfdb.chunk.css.map",
     "static/js/2.78ff1e89.chunk.js.LICENSE.txt": "/semantic-json/static/js/2.78ff1e89.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.5a2575de.js",
     "static/js/2.78ff1e89.chunk.js",
-    "static/css/main.39304f78.chunk.css",
-    "static/js/main.36b5e308.chunk.js"
+    "static/css/main.1efddfdb.chunk.css",
+    "static/js/main.adf36a44.chunk.js"
   ]
 }
