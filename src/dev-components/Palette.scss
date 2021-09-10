@@ -1,0 +1,159 @@
+@import '../constants';
+
+.Palette {
+  display: grid;
+  grid-template-columns: repeat(7, 45px);
+  padding: 25px;
+  column-gap: 25px;
+  row-gap: 25px;
+  background-color: black;
+
+  & > * {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    color: $neutral-color-3x-light;
+    font-family: $font-family-mono;
+    text-align: center;
+  }
+
+  .primary-color-3x-light {
+    background-color: $primary-color-3x-light;
+  }
+
+  .primary-color-2x-light {
+    background-color: $primary-color-2x-light;
+  }
+
+  .primary-color-light {
+    background-color: $primary-color-light;
+  }
+
+  .primary-color {
+    background-color: $primary-color;
+  }
+
+  .primary-color-dark {
+    background-color: $primary-color-dark;
+  }
+
+  .primary-color-2x-dark {
+    background-color: $primary-color-2x-dark;
+  }
+
+  .primary-color-3x-dark {
+    background-color: $primary-color-3x-dark;
+  }
+
+  .neutral-color-3x-light {
+    background-color: $neutral-color-3x-light;
+  }
+
+  .neutral-color-2x-light {
+    background-color: $neutral-color-2x-light;
+  }
+
+  .neutral-color-light {
+    background-color: $neutral-color-light;
+  }
+
+  .neutral-color {
+    background-color: $neutral-color;
+  }
+
+  .neutral-color-dark {
+    background-color: $neutral-color-dark;
+  }
+
+  .neutral-color-2x-dark {
+    background-color: $neutral-color-2x-dark;
+  }
+
+  .neutral-color-3x-dark {
+    background-color: $neutral-color-3x-dark;
+  }
+
+  .accent-green-3x-light {
+    background-color: $accent-green-3x-light;
+  }
+
+  .accent-green-2x-light {
+    background-color: $accent-green-2x-light;
+  }
+
+  .accent-green-light {
+    background-color: $accent-green-light;
+  }
+
+  .accent-green {
+    background-color: $accent-green;
+  }
+
+  .accent-green-dark {
+    background-color: $accent-green-dark;
+  }
+
+  .accent-green-2x-dark {
+    background-color: $accent-green-2x-dark;
+  }
+
+  .accent-green-3x-dark {
+    background-color: $accent-green-3x-dark;
+  }
+
+  .accent-red-3x-light {
+    background-color: $accent-red-3x-light;
+  }
+
+  .accent-red-2x-light {
+    background-color: $accent-red-2x-light;
+  }
+
+  .accent-red-light {
+    background-color: $accent-red-light;
+  }
+
+  .accent-red {
+    background-color: $accent-red;
+  }
+
+  .accent-red-dark {
+    background-color: $accent-red-dark;
+  }
+
+  .accent-red-2x-dark {
+    background-color: $accent-red-2x-dark;
+  }
+
+  .accent-red-3x-dark {
+    background-color: $accent-red-3x-dark;
+  }
+
+  .accent-orange-3x-light {
+    background-color: $accent-orange-3x-light;
+  }
+
+  .accent-orange-2x-light {
+    background-color: $accent-orange-2x-light;
+  }
+
+  .accent-orange-light {
+    background-color: $accent-orange-light;
+  }
+
+  .accent-orange {
+    background-color: $accent-orange;
+  }
+
+  .accent-orange-dark {
+    background-color: $accent-orange-dark;
+  }
+
+  .accent-orange-2x-dark {
+    background-color: $accent-orange-2x-dark;
+  }
+
+  .accent-orange-3x-dark {
+    background-color: $accent-orange-3x-dark;
+  }
+}

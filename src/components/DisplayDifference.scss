@@ -2,35 +2,46 @@
 
 .DisplayError {
   margin: $gap-large 0;
+  padding: $gap-small $gap-medium;
+  border: 1px solid $accent-red-dark;
+  background-color: $primary-color-2x-dark;
 
   pre {
-    color: $red-color;
+    color: $accent-red-dark;
   }
 }
 
 .ComparedValue {
-  &.left {
-    background-color: $bg-red-color;
-  }
-
-  &.right {
-    background-color: $bg-green-color;
-  }
-
-  .mixed {
-    background-color: $orange-color;
-  }
-
   .collapsable {
     cursor: pointer;
 
     &:hover {
-      background-color: $bg-highlight-color;
+      background-color: $primary-color-dark;
     }
 
     &.mixed:hover {
-      background-color: $orange-highlight-color;
+      background-color: $accent-orange-dark;
     }
+  }
+
+  &.left {
+    background-color: $accent-red-2x-dark;
+    
+    .collapsable:hover {
+      background-color: $accent-red-dark;
+    }
+  }
+
+  &.right {
+    background-color: $accent-green-2x-dark;
+    
+    .collapsable:hover {
+      background-color: $accent-green-dark;
+    }
+  }
+
+  .mixed {
+    background-color: $accent-orange-2x-dark;
   }
 }
 
@@ -38,5 +49,6 @@
   pre {
     margin: 0;
     padding: $gap-2x-small;
+    font-family: $font-family-mono;
   }
 }

@@ -6,14 +6,43 @@ $gap-medium: 12px;
 $gap-small: 6px;
 $gap-2x-small: 3px;
 
-$bg-color: #282c34;
-$bg-highlight-color: lighten(#282c34, 10%);
-$color: white;
+$primary-color: #073b4c;
+$primary-color-3x-light: lighten($primary-color, 11%);
+$primary-color-2x-light: lighten($primary-color, 8%);
+$primary-color-light: lighten($primary-color, 4%);
+$primary-color-dark: darken($primary-color, 4%);
+$primary-color-2x-dark: darken($primary-color, 8%);
+$primary-color-3x-dark: darken($primary-color, 11%);
 
-$red-color: #ef476f;
-$green-color: #06d6a0;
-$orange-color: #f4a261;
-$orange-highlight-color: lighten(#f4a261, 10%);
+$neutral-color: #808080;
+$neutral-color-3x-light: lighten($neutral-color, 60%);
+$neutral-color-2x-light: lighten($neutral-color, 35%);
+$neutral-color-light: lighten($neutral-color, 15%);
+$neutral-color-dark: darken($neutral-color, 10%);
+$neutral-color-2x-dark: darken($neutral-color, 20%);
+$neutral-color-3x-dark: darken($neutral-color, 40%);
 
-$bg-red-color: darken($red-color, 20%);
-$bg-green-color: darken($green-color, 20%);
+$accent-red: #ef476f;
+$accent-red-3x-light: lighten($accent-red, 30%);
+$accent-red-2x-light: lighten($accent-red, 20%);
+$accent-red-light: lighten($accent-red, 10%);
+$accent-red-dark: darken($accent-red, 20%);
+$accent-red-2x-dark: darken($accent-red, 35%);
+$accent-red-3x-dark: darken($accent-red, 45%);
+
+$accent-orange: #fb8500;
+$accent-orange-3x-light: lighten($accent-orange, 25%);
+$accent-orange-2x-light: lighten($accent-orange, 18%);
+$accent-orange-light: lighten($accent-orange, 9%);
+$accent-orange-dark: darken($accent-orange, 10%);
+$accent-orange-2x-dark: darken($accent-orange, 20%);
+$accent-orange-3x-dark: darken($accent-orange, 35%);
+
+$accent-green: #06d6a0;
+$accent-green-3x-light: lighten($accent-green, 45%);
+$accent-green-2x-light: lighten($accent-green, 30%);
+$accent-green-light: lighten($accent-green, 15%);
+$accent-green-dark: darken($accent-green, 15%);
+$accent-green-2x-dark: darken($accent-green, 25%);
+$accent-green-3x-dark: darken($accent-green, 35%);
+
