@@ -3,11 +3,11 @@
 .DisplayError {
   margin: $gap-large 0;
   padding: $gap-small $gap-medium;
-  border: 1px solid $accent-red-dark;
-  background-color: $primary-color-2x-dark;
+  border: 1px solid $accent-red-2x-dark;
+  background-color: $accent-red;
 
   pre {
-    color: $accent-red-dark;
+    color: $primary-color-3x-dark;
   }
 }
 

@@ -14,6 +14,7 @@ import {
   JsonTypedNumberValue,
   JsonTypedLazyValue,
   expandLazyValue,
+  ComparedType,
 } from '../utils'
 import './DisplayDifference.scss'
 
@@ -27,10 +28,45 @@ const INDENTATION_IN_SPACES = _.range(INDENTATION_SIZE)
   .map(() => ' ')
   .join('')
 
-const increaseIndentation = (s = ''): string => `${INDENTATION_IN_SPACES}${s}`
-
 const isComplexType = (v: JsonTypedValue): v is JsonTypedArrayValue | JsonTypedObjectValue =>
   v.type === 'array' || v.type === 'object'
+
+interface Indentation {
+  prefix: ' ' | '-' | '+' | '±'
+  spaces: string
+}
+
+const DEFAULT_INDENTATION: Indentation = {prefix: ' ', spaces: ''}
+
+const increaseIndentation = ({prefix, spaces}: Indentation = DEFAULT_INDENTATION): Indentation => ({
+  prefix,
+  spaces: `${spaces}${INDENTATION_IN_SPACES}`,
+})
+
+const updateIndentation = (
+  {prefix, spaces}: Indentation = DEFAULT_INDENTATION,
+  comparedType: ComparedType,
+): Indentation => {
+  const getNewPrefix = () => {
+    switch (comparedType) {
+      case 'left':
+        return '-'
+      case 'right':
+        return '+'
+      default:
+        return prefix
+    }
+  }
+
+  return {
+    prefix: getNewPrefix(),
+    spaces,
+  }
+}
+
+const buildIndentation = ({prefix, spaces}: Indentation = DEFAULT_INDENTATION): string =>
+  `${prefix} ${spaces}`
+
 interface DisplayValuePrefs<T> extends SharedPrefs {
   typedValue: T
 }
@@ -40,7 +76,7 @@ interface DisplayDifferencePrefs {
 }
 
 interface SharedPrefs {
-  indentation?: string
+  indentation?: Indentation
   prefix?: string
   suffix?: string
   collapse?: boolean
@@ -74,7 +110,7 @@ const DisplaySimpleValue = ({
   JsonTypedNullValue | JsonTypedBooleanValue | JsonTypedNumberValue | JsonTypedStringValue
 >): React.ReactElement => (
   <pre>
-    {indentation}
+    {buildIndentation(indentation)}
     {prefix ? `${JSON.stringify(prefix)}: ` : ''}
     {JSON.stringify(value)}
     {suffix}
@@ -94,11 +130,12 @@ const DisplayComplexValue = ({
   const [isCollapsed, setCollapsed] = useState(collapse)
   const [startTag, endTag] = ENCLOSING_TAGS[type]
   const prefixToUse = prefix ? `${JSON.stringify(prefix)}: ` : ''
+  const indentationString = buildIndentation(indentation)
 
   if (comparedValues.length === 0) {
     return (
       <pre>
-        {indentation}
+        {indentationString}
         {prefixToUse}
         {startTag}
         {endTag}
@@ -107,10 +144,14 @@ const DisplayComplexValue = ({
   }
 
   if (isCollapsed) {
+    const collapsedIndentation = isSame
+      ? indentationString
+      : buildIndentation({prefix: '±', spaces: indentation?.spaces ?? ''})
+
     return (
       <div className={clsx('collapsable', {mixed: !isSame})} onClick={() => setCollapsed(false)}>
         <pre>
-          {indentation}
+          {collapsedIndentation}
           {prefixToUse}
           {startTag}
           ..
@@ -124,7 +165,7 @@ const DisplayComplexValue = ({
     <>
       <div className="collapsable" onClick={() => setCollapsed(true)}>
         <pre>
-          {indentation}
+          {indentationString}
           {prefixToUse}
           {startTag}
         </pre>
@@ -134,7 +175,7 @@ const DisplayComplexValue = ({
         indentation={increaseIndentation(indentation)}
       />
       <pre>
-        {indentation}
+        {indentationString}
         {endTag}
         {suffix}
       </pre>
@@ -151,20 +192,28 @@ const DisplayLazyValue = ({
 
 const DisplayComparedValue = ({
   comparedValue: {comparedType, typedValue},
+  indentation,
   ...rest
 }: DisplayComparedValuePrefs): React.ReactElement => {
-  const getDisplayTypedValue = (typedValue: JsonTypedValue): React.ReactElement => {
+  const getDisplayTypedValue = (
+    indentation: Indentation,
+    typedValue: JsonTypedValue,
+  ): React.ReactElement => {
     if (isComplexType(typedValue)) {
-      return <DisplayComplexValue typedValue={typedValue} {...rest} />
+      return <DisplayComplexValue typedValue={typedValue} indentation={indentation} {...rest} />
     } else if (typedValue.type === 'lazy') {
-      return <DisplayLazyValue typedValue={typedValue} {...rest} />
+      return <DisplayLazyValue typedValue={typedValue} indentation={indentation} {...rest} />
     } else {
-      return <DisplaySimpleValue typedValue={typedValue} {...rest} />
+      return <DisplaySimpleValue typedValue={typedValue} indentation={indentation} {...rest} />
     }
   }
 
+  const newIndentation = updateIndentation(indentation, comparedType)
+
   return (
-    <div className={clsx('ComparedValue', comparedType)}>{getDisplayTypedValue(typedValue)}</div>
+    <div className={clsx('ComparedValue', comparedType)}>
+      {getDisplayTypedValue(newIndentation, typedValue)}
+    </div>
   )
 }
 
