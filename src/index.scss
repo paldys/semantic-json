@@ -7,12 +7,13 @@
 ::before,
 ::after {
   box-sizing: border-box;
+  font-family: $font-family-regular;
 }
 
 body {
   margin: 0;
-  background-color: $bg-color;
-  color: $color;
+  background-color: $primary-color-3x-dark;
+  color: $neutral-color-3x-light;
   font-family: $font-family-regular;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

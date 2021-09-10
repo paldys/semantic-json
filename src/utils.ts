@@ -22,6 +22,8 @@ const safeJsonParse = (s: string): SuccessfulSafeJsonParse | FailedSafeJsonParse
   }
 }
 
+export type ComparedType = 'both' | 'left' | 'right'
+
 export interface KeyedValue {
   key: string
 }
