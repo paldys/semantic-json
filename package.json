@@ -56,7 +56,7 @@
     "@typescript-eslint/parser": "^4.14.1",
     "eslint": "^7.18.0",
     "eslint-plugin-react": "^7.22.0",
-    "gh-pages": "^3.1.0",
+    "gh-pages": "^5.0.0",
     "prettier": "^2.2.1",
     "stylelint": "^13.9.0",
     "stylelint-config-property-sort-order-smacss": "^7.0.0",
